@@ -1,26 +1,57 @@
 import React from 'react';
-import logo from './logo.svg';
 import './App.css';
+import Favorite from './Favorite'
+import Characters from './Characters'
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+const characterUrl = 'https://rickandmortyapi.com/api/character'
+
+class App extends React.Component {
+  state = {
+    characters: [],
+    favoriteCharacter: []
+  }
+
+  componentDidMount(){
+    fetch(characterUrl)
+      .then(response => response.json())
+      .then( ({ results }) => this.setState({characters: results}))
+  }
+
+  getCharacter = (character) => {
+    this.setState({
+      favoriteCharacter: [...this.state.favoriteCharacter, character]
+    })
+  }
+
+  clickHandler = (character) => {
+      this.state.favoriteCharacter.includes(character) ?  this.removeCharacter(character) : this.getCharacter(character);
+  }
+
+
+  removeCharacter = (characterRemoving) => {
+    let newFavorite = this.state.favoriteCharacter.filter(character => {
+      return character.id !== characterRemoving.id
+    })
+
+
+    this.setState({
+      favoriteCharacter: newFavorite
+    })
+    return newFavorite
+  }
+
+  render(){
+
+    const { characters , favoriteCharacter} = this.state
+
+    return (
+      <div className="App">
+        <h1>Rick and Morty</h1>
+        <Favorite character={favoriteCharacter} clickHandler={this.clickHandler}/>
+        <Characters characters={characters} clickHandler={this.clickHandler}/>
+      </div>
+    );
+  }
 }
 
 export default App;
